@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -23,7 +24,7 @@ namespace interns
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 Console.WriteLine("Error: Cannot get file.");
-                throw new Exception();
+                Environment.Exit(0);
             }
             var contentType = response.Content.Headers.ContentType?.MediaType;
             switch (contentType)
@@ -31,8 +32,7 @@ namespace interns
                 case "application/json":
                     return await GetJsonData(httpClient, URL);
                 case "application/zip":
-                    Console.WriteLine("zip");
-                    break;
+                    return await GetZipData(httpClient, URL);
                 case "text/csv":
                     return await GetCsvData(httpClient, URL);
                 default:
@@ -53,13 +53,13 @@ namespace interns
             catch (Exception e)
             {
                 Console.WriteLine("Error: Cannot process the file.");
+                Environment.Exit(0);
             }
             return new InternsList();
         }
-
         private static async Task<InternsList> GetCsvData(HttpClient client, string URL)
         {
-            await using var stream = await client.GetStreamAsync("https://fortedigital.github.io/Back-End-Internship-Task/interns.csv");
+            await using var stream = await client.GetStreamAsync(URL);
             await using var fileStream = new FileStream("interns.csv", FileMode.Create);
             await stream.CopyToAsync(fileStream);
             await fileStream.DisposeAsync();
@@ -97,6 +97,63 @@ namespace interns
             catch (Exception e)
             {
                 Console.WriteLine("Error: Cannot process the file.");
+                Environment.Exit(0);
+            }
+            return new InternsList();
+        }
+        private static async Task<InternsList> GetZipData(HttpClient client, string URL)
+        {
+            await using var stream = await client.GetStreamAsync(URL);
+            await using var fileStream = new FileStream("interns.zip", FileMode.Create);
+            await stream.CopyToAsync(fileStream);
+            await fileStream.DisposeAsync();
+            try
+            {
+                string zipPath = "interns.zip";
+                string extractPath = @"./";
+                ZipFile.ExtractToDirectory(zipPath, extractPath, true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: Cannot process the file.");
+                Environment.Exit(0);
+                throw;
+            }
+            try
+            {
+                var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Encoding = Encoding.UTF8,
+                    Delimiter = ","
+                };
+                await using var fs = File.Open("interns.csv", FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var reader = new StreamReader(fs);
+                using var csv = new CsvReader(reader, configuration);
+                var internsList = new InternsList()
+                {
+                    Interns = new List<InternDataModel>()
+                };
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
+                    var record = new InternDataModel()
+                    {
+                        Id = csv.GetField<int>("interns/id"),
+                        Age = csv.GetField<int>("interns/age"),
+                        Email = csv.GetField<string>("interns/email"),
+                        Name = csv.GetField<string>("interns/name"),
+                        InternShipStart = csv.GetField<DateTime>("interns/internshipStart"),
+                        InternShipEnd = csv.GetField<DateTime>("interns/internshipEnd")
+                    };
+                    internsList.Interns.Add(record);
+                }
+                return internsList;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: Cannot process the file.");
+                Environment.Exit(0);
             }
             return new InternsList();
         }
