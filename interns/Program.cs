@@ -17,15 +17,15 @@ namespace interns
                 case "count":
                     var countService = new CountService(await GetFileData.GetInternsDataModels(args[1]));
                     if (ageGt > 0 && ageLt == -1)
-                        Console.WriteLine(countService.CountAgeGt(ageGt, args[1]));
+                        Console.WriteLine(countService.CountAgeGt(ageGt));
                     else if (ageLt > 0 && ageGt == -1)
-                        Console.WriteLine(countService.CountAgeLt(ageLt, args[1]));
+                        Console.WriteLine(countService.CountAgeLt(ageLt));
                     else if (ageGt == -1 && ageLt == -1)
-                        Console.WriteLine(countService.Count(args[1]));
+                        Console.WriteLine(countService.Count());
                     break;
                 case "max-age":
                     var maxAgeService = new MaxAgeService(await GetFileData.GetInternsDataModels(args[1]));
-                    Console.WriteLine(maxAgeService.GetMaxAge(args[1]));
+                    Console.WriteLine(maxAgeService.GetMaxAge());
                     break;
                 default:
                     Console.WriteLine("Invalid command");

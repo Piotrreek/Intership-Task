@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace interns
 {
+    /// <summary>
+    /// A class to keep data of interns
+    /// </summary>
     public class InternDataModel
     {
         public int Id { get; set; }
@@ -16,6 +19,9 @@ namespace interns
         public DateTime InternShipEnd { get; set; }
     }
 
+    /// <summary>
+    /// A class to keep list of InterDataModel objects
+    /// </summary>
     public class InternsList
     {
         public List<InternDataModel> Interns { get; set; }

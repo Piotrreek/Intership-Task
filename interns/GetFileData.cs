@@ -17,6 +17,11 @@ namespace interns
 {
     public class GetFileData
     {
+        /// <summary>
+        /// Send Http request and depending on content-type of response download file with correct extension and parse data from it to InternsList object
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <returns>InternsList object with list of InternDataModel objects</returns>
         public static async Task<InternsList> GetInternsDataModels(string URL)
         {
             using var httpClient = new HttpClient();
@@ -41,13 +46,17 @@ namespace interns
             }
             return new InternsList();
         }
-
         private static async Task<InternsList> GetJsonData(HttpClient client, string URL)
         {
-            var jsonString = await client.GetStringAsync(URL);
+            await using var stream = await client.GetStreamAsync(URL);
+            await using var fileStream = new FileStream("interns.json", FileMode.Create);
+            await stream.CopyToAsync(fileStream);
+            await fileStream.DisposeAsync();
             try
             {
-                var internDataModels = JsonConvert.DeserializeObject<InternsList>(jsonString);
+                using var r = new StreamReader("interns.json");
+                var json = await r.ReadToEndAsync();
+                var internDataModels = JsonConvert.DeserializeObject<InternsList>(json);
                 return internDataModels;
             }
             catch (Exception e)
@@ -55,7 +64,7 @@ namespace interns
                 Console.WriteLine("Error: Cannot process the file.");
                 Environment.Exit(0);
             }
-            return new InternsList();
+            return null;
         }
         private static async Task<InternsList> GetCsvData(HttpClient client, string URL)
         {
@@ -63,13 +72,13 @@ namespace interns
             await using var fileStream = new FileStream("interns.csv", FileMode.Create);
             await stream.CopyToAsync(fileStream);
             await fileStream.DisposeAsync();
-            var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                Encoding = Encoding.UTF8,
-                Delimiter = "," 
-            };
             try
             {
+                var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Encoding = Encoding.UTF8,
+                    Delimiter = ","
+                };
                 await using var fs = File.Open("interns.csv", FileMode.Open, FileAccess.Read, FileShare.Read);
                 using var reader = new StreamReader(fs);
                 using var csv = new CsvReader(reader, configuration);
@@ -77,9 +86,9 @@ namespace interns
                 {
                     Interns = new List<InternDataModel>()
                 };
-                csv.Read();
+                await csv.ReadAsync();
                 csv.ReadHeader();
-                while (csv.Read())
+                while (await csv.ReadAsync())
                 {
                     var record = new InternDataModel()
                     {
@@ -99,7 +108,7 @@ namespace interns
                 Console.WriteLine("Error: Cannot process the file.");
                 Environment.Exit(0);
             }
-            return new InternsList();
+            return null;
         }
         private static async Task<InternsList> GetZipData(HttpClient client, string URL)
         {
@@ -109,15 +118,14 @@ namespace interns
             await fileStream.DisposeAsync();
             try
             {
-                string zipPath = "interns.zip";
-                string extractPath = @"./";
+                const string zipPath = "interns.zip";
+                const string extractPath = @"./";
                 ZipFile.ExtractToDirectory(zipPath, extractPath, true);
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error: Cannot process the file.");
                 Environment.Exit(0);
-                throw;
             }
             try
             {
@@ -133,9 +141,9 @@ namespace interns
                 {
                     Interns = new List<InternDataModel>()
                 };
-                csv.Read();
+                await csv.ReadAsync();
                 csv.ReadHeader();
-                while (csv.Read())
+                while (await csv.ReadAsync())
                 {
                     var record = new InternDataModel()
                     {

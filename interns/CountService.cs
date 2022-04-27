@@ -13,18 +13,31 @@ namespace interns
         {
             _internsList = internsList;
         }
-        public int CountAgeGt(int ageGt, string URL)
+        /// <summary>
+        /// Search interns list to find interns with age greater than ageGt and count them
+        /// </summary>
+        /// <param name="ageGt"></param>
+        /// <returns>Number of interns with age greater than ageGt</returns>
+        public int CountAgeGt(int ageGt)
         {
             return _internsList.Interns.Count(i => i.Age > ageGt);
         }
-        public int CountAgeLt(int ageLt, string URL)
+        /// <summary>
+        /// Search interns list to find interns with age lesser than ageLt and count them
+        /// </summary>
+        /// <param name="ageLt"></param>
+        /// <returns>Number of interns with age lesser than ageLt</returns>
+        public int CountAgeLt(int ageLt)
         {
             return _internsList.Interns.Count(i => i.Age < ageLt);
         }
-        public int Count(string URL)
+        /// <summary>
+        /// Count number of interns in interns list
+        /// </summary>
+        /// <returns>Number of interns</returns>
+        public int Count()
         {
             return _internsList.Interns.Count;
-            
         }
     }
 }

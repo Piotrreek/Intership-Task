@@ -13,7 +13,11 @@ namespace interns
         {
             _internsList = internsList;
         }
-        public int GetMaxAge(string URL)
+        /// <summary>
+        /// Search interns list to find intern with max age
+        /// </summary>
+        /// <returns>Max age of all interns</returns>
+        public int GetMaxAge()
         {
             return _internsList.Interns.Max(i => i.Age);
         }

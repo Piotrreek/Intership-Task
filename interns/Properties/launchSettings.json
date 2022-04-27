@@ -1,8 +1,7 @@
 {
   "profiles": {
     "interns": {
-      "commandName": "Project",
-      "commandLineArgs": "interns.exe max-age https://fortedigital.github.io/Back-End-Internship-Task/interns.zip"
+      "commandName": "Project"
     }
   }
 }
