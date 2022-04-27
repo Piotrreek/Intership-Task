@@ -42,9 +42,10 @@ namespace interns
                     return await GetCsvData(httpClient, URL);
                 default:
                     Console.WriteLine("Unknown file");
+                    Environment.Exit(0);
                     break;
             }
-            return new InternsList();
+            return default;
         }
         private static async Task<InternsList> GetJsonData(HttpClient client, string URL)
         {
@@ -64,7 +65,7 @@ namespace interns
                 Console.WriteLine("Error: Cannot process the file.");
                 Environment.Exit(0);
             }
-            return null;
+            return default;
         }
         private static async Task<InternsList> GetCsvData(HttpClient client, string URL)
         {
@@ -108,7 +109,7 @@ namespace interns
                 Console.WriteLine("Error: Cannot process the file.");
                 Environment.Exit(0);
             }
-            return null;
+            return default;
         }
         private static async Task<InternsList> GetZipData(HttpClient client, string URL)
         {
@@ -163,7 +164,7 @@ namespace interns
                 Console.WriteLine("Error: Cannot process the file.");
                 Environment.Exit(0);
             }
-            return new InternsList();
+            return default;
         }
     }
 }

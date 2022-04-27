@@ -29,6 +29,7 @@ namespace interns
                     break;
                 default:
                     Console.WriteLine("Invalid command");
+                    Environment.Exit(0);
                     break;
             }
         }
