@@ -22,6 +22,8 @@ namespace interns
                         Console.WriteLine(countService.CountAgeLt(ageLt));
                     else if (ageGt == -1 && ageLt == -1)
                         Console.WriteLine(countService.Count());
+                    else
+                        Console.WriteLine("Unsupported operation");
                     break;
                 case "max-age":
                     var maxAgeService = new MaxAgeService(await GetFileData.GetInternsDataModels(args[1]));
